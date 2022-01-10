@@ -1,21 +1,29 @@
 package main
 
 import (
+	"errors"
 	"sync"
 )
 
 const (
-	timeStampSize     int = 41
-	highSequenceSize  int = 8
-	machineSize       int = 13
-	lowSequenceSize   int = 1
-	timestampMax          = int64(-1 ^ (-1 << timeStampSize))
-	highSequenceMax       = int64(-1 ^ (-1 << highSequenceSize))
-	machineMax            = int64(-1 ^ (-1 << machineSize))
-	lowSequenceMax        = int64(9)
-	machineShift          = lowSequenceSize
-	highSequenceShift     = machineShift + lowSequenceSize
-	timeStampShift        = highSequenceShift + lowSequenceSize
+	timeStampSize    = uint(41)
+	highSequenceSize = uint(8)
+	machineSize      = uint(13)
+	lowSequenceSize  = uint(1)
+	/*
+		等价于：-1与-1乘以2的timeStampSize次方做按位异或运算
+
+		异或运算：对比两组二进制数字的每一位上的数字，不同则在对应的结果的同一位上为1，相同则为0
+
+		-1的二进制表示：11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
+	*/
+	timestampMax      = int64(-1 ^ (-1 << timeStampSize))
+	highSequenceMax   = int64(-1 ^ (-1 << highSequenceSize))
+	machineMax        = int64(-1 ^ (-1 << machineSize))
+	lowSequenceMax    = int64(9)
+	machineShift      = lowSequenceSize
+	highSequenceShift = machineSize + lowSequenceSize
+	timeStampShift    = highSequenceSize + machineSize + lowSequenceSize
 )
 
 type Butterfly struct {
@@ -26,6 +34,11 @@ type Butterfly struct {
 	lowSequence  int64
 }
 
+/*
+	传入time.Now().UnixNano()或其它int64类型的时间戳数字，获取一个发号器实例。
+
+	请注意，该时间戳请自行持久化保存，发号器依赖于此时间戳进行发号。
+*/
 func GetGenerator(timeStamp int64) Butterfly {
 	butterfly := Butterfly{
 		timeStamp:    timeStamp,
@@ -35,12 +48,20 @@ func GetGenerator(timeStamp int64) Butterfly {
 	}
 	return butterfly
 }
-func (b *Butterfly) Next() int64 {
+
+/*
+	获取新的id
+*/
+func (b *Butterfly) Next() (int64, error) {
 	b.Lock()
 	if b.lowSequence == lowSequenceMax {
 		if b.highSequence == highSequenceMax {
-			b.timeStamp++
-			b.highSequence = 0
+			if b.timeStamp == timestampMax {
+				return 0, errors.New("no more id")
+			} else {
+				b.timeStamp++
+				b.highSequence = 0
+			}
 		} else {
 			b.highSequence++
 		}
@@ -48,8 +69,8 @@ func (b *Butterfly) Next() int64 {
 	} else {
 		b.lowSequence++
 	}
-
-	id := int64(b.timeStamp<<timeStampShift | b.highSequence<<highSequenceShift | b.machine<<machineShift | b.lowSequence)
+	// 	|是按位或运算符,当存在两个数字进行按位或运算的时候，实际进行运算的是两者的二进制数字；运算时会比较位上的数字，当两者任意一者在同一个位上存在1时，结果的该位上为1，否则为0
+	id := b.timeStamp<<timeStampShift | b.highSequence<<highSequenceShift | b.machine<<machineShift | b.lowSequence
 	b.Unlock()
-	return id
+	return id, nil
 }

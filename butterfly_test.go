@@ -6,12 +6,12 @@ import (
 )
 
 func TestNext(t *testing.T) {
-	count := 10
+	count := 20
 	generator := GetGenerator(time.Now().UnixNano())
 	var result map[int64]interface{}
 	result = make(map[int64]interface{})
 	for i := 0; i < count; i++ {
-		id := generator.Next()
+		id, _ := generator.Next()
 		result[id] = 0
 		t.Log(id)
 	}
