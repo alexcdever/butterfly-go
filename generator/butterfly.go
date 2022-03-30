@@ -1,4 +1,4 @@
-package main
+package generator
 
 import (
 	"errors"
@@ -39,14 +39,14 @@ type Butterfly struct {
 
 	请注意，该时间戳请自行持久化保存，发号器依赖于此时间戳进行发号。
 */
-func GetGenerator(timeStamp int64) Butterfly {
+func New(timeStamp int64) *Butterfly {
 	butterfly := Butterfly{
 		timeStamp:    timeStamp,
 		highSequence: 0,
 		machine:      0,
 		lowSequence:  0,
 	}
-	return butterfly
+	return &butterfly
 }
 
 /*

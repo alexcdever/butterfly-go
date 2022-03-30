@@ -1,4 +1,4 @@
-package main
+package generator
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 
 func TestNext(t *testing.T) {
 	count := 20
-	generator := GetGenerator(time.Now().UnixNano())
+	generator := New(time.Now().UnixNano())
 	var result map[int64]interface{}
 	result = make(map[int64]interface{})
 	for i := 0; i < count; i++ {
