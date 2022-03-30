@@ -2,6 +2,7 @@ package generator
 
 import (
 	"errors"
+	"log"
 	"sync"
 )
 
@@ -49,10 +50,7 @@ func New(timeStamp int64) *Butterfly {
 	return &butterfly
 }
 
-/*
-	获取新的id
-*/
-func (b *Butterfly) Next() (int64, error) {
+func (b *Butterfly) Generate() (int64, error) {
 	b.Lock()
 	if b.lowSequence == lowSequenceMax {
 		if b.highSequence == highSequenceMax {
@@ -73,4 +71,18 @@ func (b *Butterfly) Next() (int64, error) {
 	id := b.timeStamp<<timeStampShift | b.highSequence<<highSequenceShift | b.machine<<machineShift | b.lowSequence
 	b.Unlock()
 	return id, nil
+}
+
+func (b *Butterfly) BatchGenerate(count int) ([]int64, error) {
+	var idList []int64
+	for count > 0 {
+		id, err := b.Generate()
+		if err != nil {
+			log.Fatalf("failed to generate id: %s", err)
+			return nil, err
+		}
+		idList = append(idList, id)
+		count--
+	}
+	return idList, nil
 }
