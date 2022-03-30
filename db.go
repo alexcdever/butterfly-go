@@ -11,11 +11,12 @@ type MysqlConfig struct {
 	DbConfig
 	encoding string
 }
-type DbConfigService interface {
-	Connect()
-	InitDB()
-	GenerateId()
-	ConsumeId()
+type DbPersistentService interface {
+	Connect() error
+	InitDB() error
+	GenerateId() error
+	ConsumeId() (id int64, err error)
+	CheckUnusedId() (num int, err error)
 }
 
 func (config *MysqlConfig) Connect() {
