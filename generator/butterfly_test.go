@@ -7,7 +7,10 @@ import (
 
 func TestButterfly_Generate(t *testing.T) {
 	count := 20
-	generator := New(time.Now().UnixNano())
+	generator, err := NewWithTimestamp(time.Now().UnixMilli())
+	if err != nil {
+		t.Errorf("failed to get generator: %s", err)
+	}
 	var result map[int64]interface{}
 	result = make(map[int64]interface{})
 	for i := 0; i < count; i++ {
@@ -24,7 +27,10 @@ func TestButterfly_Generate(t *testing.T) {
 
 func TestButterfly_BatchGenerate(t *testing.T) {
 	count := 20
-	generator := New(time.Now().UnixNano())
+	generator, err := NewWithTimestamp(time.Now().UnixMilli())
+	if err != nil {
+		t.Errorf("failed to get generator: %s", err)
+	}
 	var result map[int64]interface{}
 	result = make(map[int64]interface{})
 	idList, _ := generator.BatchGenerate(count)

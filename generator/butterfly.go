@@ -52,6 +52,7 @@ type Butterfly struct {
 
 	请注意，该时间戳需自行持久化保存，发号器依赖于此时间戳进行后续的发号。
 */
+func NewWithTimestamp(timestamp int64) (*Butterfly, error) {
 	if timestamp > timestampMax {
 		return nil, fmt.Errorf("timestamp[%v] can't be more than the max[%v] of timestamp", timestamp, timestampMax)
 	}
@@ -61,9 +62,23 @@ type Butterfly struct {
 		machine:      0,
 		lowSequence:  0,
 	}
-	return &butterfly
+	return &butterfly, nil
 }
 
+// NewWithTimestampAndMachineNumber 通过微秒级时间戳和机器编号构件一个发号器实例
+func NewWithTimestampAndMachineNumber(timestamp, machine int64) (*Butterfly, error) {
+	if machine > machineMax {
+		return nil, fmt.Errorf("machine[%v] can't be more than the max[%v] of machine", machine, machineMax)
+	}
+	butterfly, err := NewWithTimestamp(timestamp)
+	if err != nil {
+		return nil, err
+	}
+	butterfly.machine = machine
+	return butterfly, nil
+}
+
+// Generate 返回新的id给调用者
 func (b *Butterfly) Generate() (int64, error) {
 	b.Lock()
 	// 判断低位顺序递进数是否为最大值
