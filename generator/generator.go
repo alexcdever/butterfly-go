@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"sync"
 )
 
@@ -63,6 +64,17 @@ func NewWithTimestamp(timestamp int64) (*Butterfly, error) {
 		lowSequence:  0,
 	}
 	return &butterfly, nil
+}
+func NewWithId(id int64) (*Butterfly, error) {
+	timestampStr := string(id)[timeStampShift:]
+	timestamp, err := strconv.ParseInt(timestampStr, 0, 0)
+	if err != nil {
+		log.Fatalf("failed to get timestamp from the string value[%s] of timestamp: %v", timestampStr, err)
+	}
+	timestamp = timestamp << timeStampShift
+	butterfly, _ := NewWithTimestamp(timestamp)
+
+	return butterfly, nil
 }
 
 // NewWithTimestampAndMachineNumber 通过微秒级时间戳和机器编号构件一个发号器实例
