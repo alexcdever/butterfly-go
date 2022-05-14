@@ -8,41 +8,29 @@ import (
 func TestNewWithTimestamp(t *testing.T) {
 	timestamp := time.Now().UnixMilli()
 	generator, err := NewWithTimestamp(timestamp)
-	if err != nil {
-		t.Errorf("failed to construct generator: %v", err)
+	if err != nil || generator.timestamp != timestamp {
+		t.Errorf("failed to get instance by timestamp[%v]: %v", timestamp, err)
 	}
-	if generator.timestamp == timestamp {
-		t.Log("test successfully")
-	} else {
-		t.Errorf("timestamp is different: origin[%d]:generator[%d]", timestamp, generator.timestamp)
-	}
+	t.Log("successfully got instance by NewWithTimestamp")
 }
 
-func TestNewWithId(t *testing.T) {
-	generator, err := NewWithTimestamp(time.Now().UnixMilli())
-	if err != nil {
-		t.Errorf("failed to construct generator: %v", err)
+func TestNewWithNow(t *testing.T) {
+	gen, err := NewWithNow()
+	if err != nil || gen.timestamp > time.Now().UnixMilli() {
+		t.Errorf("failed to get instance by NewWithNow: %v", err)
 	}
-	id, err := generator.Generate()
-	if err != nil {
-		t.Errorf("failed to generate id: %v", err)
-	}
-	gen2, err := NewWithId(id)
-	if err != nil {
-		t.Errorf("failed to construct the second generator: %v", err)
-	}
-	id2, err := gen2.Generate()
-	if err != nil {
-		t.Errorf("failed to generate id by gen2: %v", err)
-	}
-	if id2 > id {
-		t.Log("test successfully")
-	} else {
-		t.Errorf("the id2[%d] must be bigger than id[%d]", id2, id)
-	}
-
+	t.Log("successfully got instance by NewWithNow")
 }
 
+func TestNewWithTimestampAndMachineNumber(t *testing.T) {
+	timestamp := time.Now().UnixMilli()
+	machineId := int64(1)
+	gen, err := NewWithTimestampAndMachineNumber(timestamp, machineId)
+	if err != nil || gen.timestamp > time.Now().UnixMilli() {
+		t.Errorf("failed to get instance by NewWithTimestampAndMachineNumber: %v", err)
+	}
+	t.Log("successfully got instance by NewWithTimestampAndMachineNumber")
+}
 func TestButterfly_Generate(t *testing.T) {
 	count := 20
 	generator, err := NewWithTimestamp(time.Now().UnixMilli())
