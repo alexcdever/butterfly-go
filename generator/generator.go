@@ -19,14 +19,14 @@ const (
 	lowSequenceSize = uint(1)
 
 	/*
-		求时间戳的最大值的公式的意思是：-1与-1乘以2的timeStampSize次方做按位异或运算
+		求最大值的公式的意思是：-1与-1乘以2的Size次方做按位异或运算
 
 		异或运算：对比两组二进制数字的每一位上的数字，不同则在对应的结果的同一位上为1，相同则为0
 
 		-1的二进制表示：11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
 	*/
 
-	// 时间戳最大值
+	// 时间戳最大值，将-1左移41位，则-1变成一个bit长度为41的二进制数字（左边补零）
 	timestampMax = int64(-1 ^ (-1 << timeStampSize))
 	// 高位顺序递进数最大值
 	highSequenceMax = int64(-1 ^ (-1 << highSequenceSize))
@@ -49,9 +49,7 @@ type Butterfly struct {
 }
 
 /*
-	NewWithTimestamp 传入time.Now().UnixMilli()或其它int64类型的时间戳作为起始时间，获取一个发号器实例。
-
-	请注意，该时间戳需自行持久化保存，发号器依赖于此时间戳进行后续的发号。
+	NewWithTimestamp 传入time.Now().UnixMilli()时间戳作为起始时间，获取一个发号器实例。
 */
 func NewWithTimestamp(timestamp int64) (*Butterfly, error) {
 	if timestamp > timestampMax {
