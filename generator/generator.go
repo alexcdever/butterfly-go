@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"sync"
+	"time"
 )
 
 const (
@@ -55,23 +55,10 @@ func NewWithTimestamp(timestamp int64) (*Butterfly, error) {
 	if timestamp > timestampMax {
 		return nil, fmt.Errorf("timestamp[%v] can't be more than the max[%v] of timestamp", timestamp, timestampMax)
 	}
-	butterfly := Butterfly{
-		timestamp:    timestamp,
-		highSequence: 0,
-		machine:      0,
-		lowSequence:  0,
-	}
-	return &butterfly, nil
-}
-func NewWithId(id int64) (*Butterfly, error) {
-	timestampStr := string(id)[timeStampShift:]
-	timestamp, err := strconv.ParseInt(timestampStr, 0, 0)
+	butterfly, err := NewWithTimestampAndMachineNumber(timestamp, 0)
 	if err != nil {
-		log.Fatalf("failed to get timestamp from the string value[%s] of timestamp: %v", timestampStr, err)
+		return nil, fmt.Errorf("fialed to construct with timestamp[%v] and machine number[%v]", timestamp, 0)
 	}
-	timestamp = timestamp << timeStampShift
-	butterfly, _ := NewWithTimestamp(timestamp)
-
 	return butterfly, nil
 }
 
