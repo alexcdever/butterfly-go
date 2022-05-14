@@ -62,7 +62,11 @@ func NewWithTimestamp(timestamp int64) (*Butterfly, error) {
 	return butterfly, nil
 }
 
-// NewWithTimestampAndMachineNumber 通过微秒级时间戳和机器编号构件一个发号器实例
+func NewWithNow() (*Butterfly, error) {
+	return NewWithTimestamp(time.Now().UnixMilli())
+}
+
+// NewWithTimestampAndMachineNumber 通过毫秒级时间戳和机器编号构件一个发号器实例
 func NewWithTimestampAndMachineNumber(timestamp, machine int64) (*Butterfly, error) {
 	if machine > machineMax {
 		return nil, fmt.Errorf("machine[%v] can't be more than the max[%v] of machine", machine, machineMax)
