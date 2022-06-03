@@ -17,7 +17,7 @@ func TestNewWithTimestamp(t *testing.T) {
 
 func TestNewWithNow(t *testing.T) {
 	gen, err := NewWithNow()
-	if err != nil || gen.timestamp > time.Now().UnixMilli() {
+	if err != nil || gen.Timestamp > time.Now().UnixMilli() {
 		t.Errorf("failed to get instance by NewWithNow: %v", err)
 	}
 	t.Log("successfully got instance by NewWithNow")
