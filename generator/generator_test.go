@@ -8,7 +8,7 @@ import (
 func TestNewWithTimestamp(t *testing.T) {
 	timestamp := time.Now().UnixMilli()
 	generator, err := NewWithTimestamp(timestamp)
-	if err != nil || generator.timestamp != timestamp {
+	if err != nil || generator.Timestamp != timestamp {
 		t.Errorf("failed to get instance by timestamp[%v]: %v", timestamp, err)
 	}
 	t.Log("successfully got instance by NewWithTimestamp")
@@ -26,7 +26,7 @@ func TestNewWithTimestampAndMachineNumber(t *testing.T) {
 	timestamp := time.Now().UnixMilli()
 	machineId := int64(1)
 	gen, err := NewWithTimestampAndMachineNumber(timestamp, machineId)
-	if err != nil || gen.timestamp > time.Now().UnixMilli() {
+	if err != nil || gen.Timestamp > time.Now().UnixMilli() {
 		t.Errorf("failed to get instance by NewWithTimestampAndMachineNumber: %v", err)
 	}
 	t.Log("successfully got instance by NewWithTimestampAndMachineNumber")

@@ -45,7 +45,10 @@ const (
 // Butterfly 发号器的实体类
 type Butterfly struct {
 	sync.Mutex
-	timestamp, highSequence, machine, lowSequence int64
+	Timestamp    int64 `validate:"required,number" json:"timestamp,omitempty" yaml:"timestamp"`
+	HighSequence int64 `json:"highSequence,omitempty" yaml:"highSequence"`
+	Machine      int64 `validate:"required,number" json:"machine,omitempty" yaml:"machine"`
+	LowSequence  int64 `json:"lowSequence,omitempty" yaml:"lowSequence"`
 }
 
 /*
@@ -71,11 +74,8 @@ func NewWithTimestampAndMachineNumber(timestamp, machine int64) (*Butterfly, err
 	if machine > machineMax {
 		return nil, fmt.Errorf("machine[%v] can't be more than the max[%v] of machine", machine, machineMax)
 	}
-	butterfly, err := NewWithTimestamp(timestamp)
-	if err != nil {
-		return nil, err
-	}
-	butterfly.machine = machine
+	butterfly := &Butterfly{Timestamp: timestamp, Machine: machine}
+	butterfly.Machine = machine
 	return butterfly, nil
 }
 
@@ -83,30 +83,30 @@ func NewWithTimestampAndMachineNumber(timestamp, machine int64) (*Butterfly, err
 func (b *Butterfly) Generate() (int64, error) {
 	b.Lock()
 	// 判断低位顺序递进数是否为最大值
-	if b.lowSequence == lowSequenceMax {
+	if b.LowSequence == lowSequenceMax {
 		// 拒绝为机器编号数值大于最大值的发号器实例继续发号
-		if b.machine > machineMax {
-			return 0, fmt.Errorf("the machine[%v] can't be bigger than the max[%v] of machine", b.machine, machineMax)
+		if b.Machine > machineMax {
+			return 0, fmt.Errorf("the machine[%v] can't be bigger than the max[%v] of machine", b.Machine, machineMax)
 		}
 		// 判断低位顺序递进数是否为最大值
-		if b.highSequence == highSequenceMax {
+		if b.HighSequence == highSequenceMax {
 			// 判断时间戳是否为最大值
-			if b.timestamp == timestampMax {
+			if b.Timestamp == timestampMax {
 				return 0, errors.New("no more id")
 			} else {
 				// 时间戳+1，高位顺序递进数归零
-				b.timestamp++
-				b.highSequence = 0
+				b.Timestamp++
+				b.HighSequence = 0
 			}
 		} else {
-			b.highSequence++
+			b.HighSequence++
 		}
-		b.lowSequence = 0
+		b.LowSequence = 0
 	} else {
-		b.lowSequence++
+		b.LowSequence++
 	}
 	// 	|是按位或运算符,当存在两个数字进行按位或运算的时候，实际进行运算的是两者的二进制数字；运算时会比较位上的数字，当两者任意一者在同一个位上存在1时，结果的该位上为1，否则为0
-	id := b.timestamp<<timeStampShift | b.highSequence<<highSequenceShift | b.machine<<machineShift | b.lowSequence
+	id := b.Timestamp<<timeStampShift | b.HighSequence<<highSequenceShift | b.Machine<<machineShift | b.LowSequence
 	b.Unlock()
 	return id, nil
 }
