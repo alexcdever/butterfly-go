@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	// 时间戳的长度
+	// the size of timestamp
 	timeStampSize = uint(41)
-	// 高位顺序递进数的长度
+	// the size of high sequence
 	highSequenceSize = uint(8)
-	// 机器编号的长度
+	// the size of machine
 	machineSize = uint(13)
-	// 低位顺序递进数的长度
+	// the size of low sequence
 	lowSequenceSize = uint(1)
 
 	/*
@@ -42,7 +42,6 @@ const (
 	timeStampShift = highSequenceSize + machineSize + lowSequenceSize
 )
 
-// Butterfly 发号器的实体类
 type Butterfly struct {
 	sync.Mutex
 	Timestamp    int64 `validate:"required,number" json:"timestamp,omitempty" yaml:"timestamp"`
@@ -65,11 +64,12 @@ func NewWithTimestamp(timestamp int64) (*Butterfly, error) {
 	return butterfly, nil
 }
 
+// NewWithNow returns a new instance that timestamp use current time
 func NewWithNow() (*Butterfly, error) {
 	return NewWithTimestamp(time.Now().UnixMilli())
 }
 
-// NewWithTimestampAndMachineNumber 通过毫秒级时间戳和机器编号构件一个发号器实例
+// NewWithTimestampAndMachineNumber returns new instance with the given timestamp value and machine value
 func NewWithTimestampAndMachineNumber(timestamp, machine int64) (*Butterfly, error) {
 	if machine > machineMax {
 		return nil, fmt.Errorf("machine[%v] can't be more than the max[%v] of machine", machine, machineMax)
@@ -79,7 +79,7 @@ func NewWithTimestampAndMachineNumber(timestamp, machine int64) (*Butterfly, err
 	return butterfly, nil
 }
 
-// Generate 返回新的id给调用者
+// Generate returns new id
 func (b *Butterfly) Generate() (int64, error) {
 	b.Lock()
 	// 判断低位顺序递进数是否为最大值
@@ -111,7 +111,7 @@ func (b *Butterfly) Generate() (int64, error) {
 	return id, nil
 }
 
-// BatchGenerate 按数量要求批量生成符合要求数量的ID
+// BatchGenerate returns the list of new id
 func (b *Butterfly) BatchGenerate(count int) ([]int64, error) {
 	var idList []int64
 	for count > 0 {
