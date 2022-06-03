@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"github.com/spf13/viper"
 	"testing"
 	"time"
 )
@@ -70,5 +71,43 @@ func TestButterfly_BatchGenerate(t *testing.T) {
 		t.Errorf("the size of id list is not correct, expected [%v], but [%v] ", count, len(result))
 	} else {
 		t.Log("test successfully")
+	}
+}
+
+func TestReadConfig(t *testing.T) {
+	var jsonConfig Butterfly
+	var ymlConfig Butterfly
+	jsonViper := viper.New()
+	ymlViper := viper.New()
+	jsonViper.SetConfigFile("test.json")
+	ymlViper.SetConfigFile("test.yml")
+	if err := jsonViper.ReadInConfig(); err != nil {
+		t.Errorf("failed to read config from json: %v", err)
+	}
+	if err := ymlViper.ReadInConfig(); err != nil {
+		t.Errorf("failed to read config from yml: %v", err)
+	}
+
+	if err := jsonViper.Unmarshal(&jsonConfig); err != nil {
+		t.Errorf("failed to unmarshal from json: %v", err)
+	}
+	if err := ymlViper.Unmarshal(&ymlConfig); err != nil {
+		t.Errorf("failed to unmarshal from json: %v", err)
+	}
+
+	jsonId, err := jsonConfig.Generate()
+	if err != nil {
+		t.Errorf("the generator form json failed to generate new id: %v", err)
+	}
+	ymlId, err := ymlConfig.Generate()
+	if err != nil {
+		t.Errorf("the generator form yml failed to generate new id: %v", err)
+	}
+	if jsonId == ymlId {
+		t.Log("generator can load config from file")
+		t.Logf("json config: %p", &jsonConfig)
+		t.Logf("yml config: %p", &ymlConfig)
+	} else {
+		t.Fatalf("json config[%v] is different with yml config[%v]", &jsonConfig, &ymlConfig)
 	}
 }
