@@ -3,6 +3,7 @@ package generator
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/viper"
 	"log"
 	"sync"
 	"time"
@@ -50,9 +51,23 @@ type Butterfly struct {
 	LowSequence  int64 `json:"lowSequence,omitempty" yaml:"lowSequence"`
 }
 
-/*
-	NewWithTimestamp 传入time.Now().UnixMilli()时间戳作为起始时间，获取一个发号器实例。
-*/
+// NewFromConfigFile returns a new instance that load value from configuration file
+// configFile includes name and file extension. configFile supports json and yml format
+func NewFromConfigFile(configFile string) (*Butterfly, error) {
+	var instance Butterfly
+	viper.SetConfigFile(configFile)
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("failed to read config from [%s]: %v", configFile, err)
+	}
+
+	if err := viper.Unmarshal(&instance); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal from [%s]: %v", configFile, err)
+	}
+
+	return &instance, nil
+}
+
+// NewWithTimestamp returns a new instance which uses the given time.Now().UnixMilli() as the timestamp
 func NewWithTimestamp(timestamp int64) (*Butterfly, error) {
 	if timestamp > timestampMax {
 		return nil, fmt.Errorf("timestamp[%v] can't be more than the max[%v] of timestamp", timestamp, timestampMax)
