@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+func FuzzNewWithTimestamp(f *testing.F) {
+	f.Add(time.Now().UnixMilli())
+	f.Fuzz(func(t *testing.T, timestamp int64) {
+		generator, err := NewWithTimestamp(timestamp)
+		if err != nil || generator.Timestamp != timestamp {
+			t.Errorf("failed to get instance by timestamp[%v]: %v", timestamp, err)
+		}
+	})
+}
 func TestNewWithTimestamp(t *testing.T) {
 	timestamp := time.Now().UnixMilli()
 	generator, err := NewWithTimestamp(timestamp)
