@@ -51,6 +51,11 @@ type Butterfly struct {
 	LowSequence  int64 `json:"lowSequence,omitempty" yaml:"lowSequence"`
 }
 
+type Bid struct {
+	id int
+	Butterfly
+}
+
 // NewFromConfigFile returns a new instance that load value from configuration file
 // configFile includes name and file extension. configFile supports json and yml format
 func NewFromConfigFile(configFile string) (*Butterfly, error) {
@@ -92,6 +97,10 @@ func NewWithTimestampAndMachineNumber(timestamp, machine int64) (*Butterfly, err
 	butterfly := &Butterfly{Timestamp: timestamp, Machine: machine}
 	butterfly.Machine = machine
 	return butterfly, nil
+}
+
+func (b *Butterfly) Commit() {
+	
 }
 
 // Generate returns new id
