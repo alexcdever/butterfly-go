@@ -1,4 +1,4 @@
-package generator
+package main
 
 import (
 	"testing"
@@ -110,8 +110,8 @@ func BenchmarkButterfly_GenerateWithDB(b *testing.B) {
 }
 
 func TestNewFromConfigFile(t *testing.T) {
-	jsonConfig, err := NewFromConfigFile("test.json")
-	ymlConfig, err := NewFromConfigFile("test.yml")
+	jsonConfig, err := NewFromConfigFile("config.json")
+	ymlConfig, err := NewFromConfigFile("config.yml")
 
 	jsonId, err := jsonConfig.Generate()
 	if err != nil {
