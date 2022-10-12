@@ -5,6 +5,6 @@ type MysqlConfig struct {
 	encoding string
 }
 
-func (config *MysqlConfig) Connect() {
-
+func (config *MysqlConfig) GenerateConnectLink() (link string, err error) {
+	return link, err
 }

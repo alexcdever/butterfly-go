@@ -9,6 +9,6 @@ type PostgreSqlConfig struct {
 	}
 }
 
-func (config *PostgreSqlConfig) Connect() {
-
+func (config *PostgreSqlConfig) GenerateConnectLink() (link string, err error) {
+	return link, err
 }

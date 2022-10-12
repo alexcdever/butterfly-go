@@ -9,7 +9,7 @@ type Config struct {
 }
 
 type PersistentService interface {
-	Connect() error
+	GenerateConnectLink() (link string, err error)
 	InitTable() error
 	CommitId() error
 	ConsumeId() (id int64, err error)
