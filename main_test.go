@@ -82,6 +82,33 @@ func TestButterfly_BatchGenerate(t *testing.T) {
 	}
 }
 
+// execute `go test -bench=. -benchmem` in the folder of where does this file exists
+func Benchmark_GenerateWithoutDB(b *testing.B) {
+
+	millionCount := b.N
+	b.ResetTimer()
+	generator, err := NewWithTimestamp(time.Now().UnixMilli())
+	if err != nil {
+		b.Errorf("failed to get generator: %s", err)
+	}
+	var result map[int64]interface{}
+	result = make(map[int64]interface{})
+	for i := 0; i < millionCount; i++ {
+		id, _ := generator.Generate()
+		result[id] = 0
+		b.Log(id)
+	}
+	if len(result) != millionCount {
+		b.Errorf("the count of id is not correct, expected [%v], but [%v] ", millionCount, len(result))
+	} else {
+		b.Log("test successfully")
+	}
+}
+
+func BenchmarkButterfly_GenerateWithDB(b *testing.B) {
+
+}
+
 func TestNewFromConfigFile(t *testing.T) {
 	jsonConfig, err := NewFromConfigFile("test.json")
 	ymlConfig, err := NewFromConfigFile("test.yml")
