@@ -1,14 +1,8 @@
-timestamp: 1654239988666
-highSequence: 0
-machine: 0
-lowSequence: 0
-
-DB:
-  Host: localhost
-  Port: 5432
-  User: postgres
-  Password: password
-  Postgres:
-    Database: butterfly
-    SslMode: disable
-    TimeZone: Asia%2FShanghai
+Host: localhost
+Port: 5432
+User: postgres
+Password: password
+Postgres:
+  Database: butterfly
+  SslMode: disable
+  TimeZone: Asia%2FShanghai

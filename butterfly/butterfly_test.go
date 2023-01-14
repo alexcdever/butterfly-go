@@ -1,4 +1,4 @@
-package main
+package butterfly
 
 import (
 	"testing"
@@ -8,25 +8,25 @@ import (
 func FuzzNewWithTimestamp(f *testing.F) {
 	f.Add(time.Now().UnixMilli())
 	f.Fuzz(func(t *testing.T, timestamp int64) {
-		generator, err := NewWithTimestamp(timestamp)
-		if err != nil || generator.Timestamp != timestamp {
-			t.Errorf("failed to get instance by timestamp[%v]: %v", timestamp, err)
+		generator := NewWithTimestamp(timestamp)
+		if generator.Timestamp != timestamp {
+			t.Errorf("failed to get instance by timestamp[%v]", timestamp)
 		}
 	})
 }
 func TestNewWithTimestamp(t *testing.T) {
 	timestamp := time.Now().UnixMilli()
-	generator, err := NewWithTimestamp(timestamp)
-	if err != nil || generator.Timestamp != timestamp {
-		t.Errorf("failed to get instance by timestamp[%v]: %v", timestamp, err)
+	generator := NewWithTimestamp(timestamp)
+	if generator.Timestamp != timestamp {
+		t.Errorf("failed to get instance by timestamp[%v]", timestamp)
 	}
 	t.Log("successfully got instance by NewWithTimestamp")
 }
 
 func TestNewWithNow(t *testing.T) {
-	gen, err := NewWithNow()
-	if err != nil || gen.Timestamp > time.Now().UnixMilli() {
-		t.Errorf("failed to get instance by NewWithNow: %v", err)
+	gen := NewWithNow()
+	if gen.Timestamp > time.Now().UnixMilli() {
+		t.Errorf("failed to get instance by NewWithNow")
 	}
 	t.Log("successfully got instance by NewWithNow")
 }
@@ -34,22 +34,20 @@ func TestNewWithNow(t *testing.T) {
 func TestNewWithTimestampAndMachineNumber(t *testing.T) {
 	timestamp := time.Now().UnixMilli()
 	machineId := int64(1)
-	gen, err := NewWithTimestampAndMachineNumber(timestamp, machineId)
-	if err != nil || gen.Timestamp > time.Now().UnixMilli() {
-		t.Errorf("failed to get instance by NewWithTimestampAndMachineNumber: %v", err)
+	gen := NewWithTimestampAndMachineNumber(timestamp, machineId)
+	if gen.Timestamp > time.Now().UnixMilli() {
+		t.Errorf("failed to get instance by NewWithTimestampAndMachineNumber")
 	}
 	t.Log("successfully got instance by NewWithTimestampAndMachineNumber")
 }
 func TestButterfly_Generate(t *testing.T) {
 	count := 20
-	generator, err := NewWithTimestamp(time.Now().UnixMilli())
-	if err != nil {
-		t.Errorf("failed to get generator: %s", err)
-	}
+	generator := NewWithTimestamp(time.Now().UnixMilli())
+
 	var result map[int64]interface{}
 	result = make(map[int64]interface{})
 	for i := 0; i < count; i++ {
-		id, _ := generator.Generate()
+		id := generator.Generate()
 		result[id] = 0
 		t.Log(id)
 	}
@@ -62,13 +60,11 @@ func TestButterfly_Generate(t *testing.T) {
 
 func TestButterfly_BatchGenerate(t *testing.T) {
 	count := 20
-	generator, err := NewWithTimestamp(time.Now().UnixMilli())
-	if err != nil {
-		t.Errorf("failed to get generator: %s", err)
-	}
+	generator := NewWithTimestamp(time.Now().UnixMilli())
+
 	var result map[int64]interface{}
 	result = make(map[int64]interface{})
-	idList, _ := generator.BatchGenerate(count)
+	idList := generator.BatchGenerate(count)
 
 	for _, v := range idList {
 		result[v] = 0
@@ -87,14 +83,12 @@ func Benchmark_GenerateWithoutDB(b *testing.B) {
 
 	millionCount := b.N
 	b.ResetTimer()
-	generator, err := NewWithTimestamp(time.Now().UnixMilli())
-	if err != nil {
-		b.Errorf("failed to get generator: %s", err)
-	}
+	generator := NewWithTimestamp(time.Now().UnixMilli())
+
 	var result map[int64]interface{}
 	result = make(map[int64]interface{})
 	for i := 0; i < millionCount; i++ {
-		id, _ := generator.Generate()
+		id := generator.Generate()
 		result[id] = 0
 		b.Log(id)
 	}
@@ -113,16 +107,16 @@ func TestNewFromConfigFile(t *testing.T) {
 	jsonConfig, err := NewFromConfigFile("config.json")
 	ymlConfig, err := NewFromConfigFile("config.yml")
 
-	jsonId, err := jsonConfig.Generate()
+	jsonId := jsonConfig.Generate()
 	if err != nil {
-		t.Errorf("the generator form json failed to generate new id: %v", err)
+		t.Errorf("the butterfly form json failed to generate new id: %v", err)
 	}
-	ymlId, err := ymlConfig.Generate()
+	ymlId := ymlConfig.Generate()
 	if err != nil {
-		t.Errorf("the generator form yml failed to generate new id: %v", err)
+		t.Errorf("the butterfly form yml failed to generate new id: %v", err)
 	}
 	if jsonId == ymlId {
-		t.Log("generator can load config from file")
+		t.Log("butterfly can load config from file")
 		t.Logf("json config: %p", &jsonConfig)
 		t.Logf("yml config: %p", &ymlConfig)
 	} else {
