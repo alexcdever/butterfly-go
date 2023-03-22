@@ -89,8 +89,11 @@ func TestButterflyList_Consume(t *testing.T) {
 
 	// 测试生成的ID是否递增
 	idList := b.ConsumeInBatches(consumeCount)
+	if len(b.UnusedIDList) != balanceAfterSecondConsume {
+		t.Errorf("the lengh of unused id list expects as %d, but is %d", balanceAfterSecondConsume, len(b.UnusedIDList))
+	}
 	lastID = idList[0]
-	for i := 0; i < len(idList); i++ {
+	for i := 1; i < len(idList); i++ {
 		currentID := idList[i]
 		if currentID <= lastID {
 			t.Errorf("ID not incrementing: %d, %d", currentID, lastID)

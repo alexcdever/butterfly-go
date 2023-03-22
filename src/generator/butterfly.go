@@ -1,7 +1,6 @@
 package generator
 
 import (
-	"log"
 	"sync"
 )
 
@@ -83,12 +82,8 @@ func (b *ButterflyList) Consume() int64 {
 
 func (b *ButterflyList) ConsumeInBatches(count int) (idList []int64) {
 	b.mutex.Lock()
-	copiedCount := copy(idList, b.UnusedIDList[:count])
-	if copiedCount != count {
-		log.Fatalf("copied count does not equal %d, actually is %d", count, copiedCount)
-	}
-
-	b.UnusedIDList = append(b.UnusedIDList[:count], b.UnusedIDList[count+1:]...)
+	idList = b.UnusedIDList[:count]
+	b.UnusedIDList = b.UnusedIDList[count:]
 	b.mutex.Unlock()
 	return idList
 }
