@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"log"
 	"sync"
 )
 
@@ -19,14 +20,14 @@ const (
 )
 
 type Butterfly struct {
-	timestamp    uint64     // 时间戳
-	highSequence uint64     // 高序列号
-	lowSequence  uint64     // 低序列号
-	nodeID       uint64     // 节点ID
+	timestamp    int64      // 时间戳
+	highSequence int64      // 高序列号
+	lowSequence  int64      // 低序列号
+	nodeID       int64      // 节点ID
 	mutex        sync.Mutex // 互斥锁
 }
 
-func (b *Butterfly) Generate() uint64 {
+func (b *Butterfly) Generate() int64 {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
@@ -48,6 +49,46 @@ func (b *Butterfly) Generate() uint64 {
 	return id
 }
 
-func NewButterfly(initTimestamp uint64) *Butterfly {
-	return &Butterfly{timestamp: initTimestamp}
+func (b *Butterfly) GenerateInBatches(count int) []int64 {
+	var idList []int64
+	for i := 0; i < count; i++ {
+		idList = append(idList, b.Generate())
+	}
+	return idList
+}
+
+type ButterflyList struct {
+	generator    *Butterfly
+	mutex        sync.Mutex
+	UnusedIDList []int64
+	Period       int64
+	// AtLeastCount required the length of UnusedIDList at least 200
+	AtLeastCount int `validate:"required,gte=200"`
+	// IncreaseCount required the count of appending to UnusedIDList at least 3000
+	IncreaseCount int `validate:"required,gte=3000"`
+}
+
+func (b *ButterflyList) construct() {
+	b.UnusedIDList = append(b.UnusedIDList, b.generator.GenerateInBatches(b.IncreaseCount)...)
+}
+
+func (b *ButterflyList) Consume() int64 {
+	b.mutex.Lock()
+	id := b.UnusedIDList[0]
+	b.UnusedIDList = b.UnusedIDList[1:]
+	b.mutex.Unlock()
+
+	return id
+}
+
+func (b *ButterflyList) ConsumeInBatches(count int) (idList []int64) {
+	b.mutex.Lock()
+	copiedCount := copy(idList, b.UnusedIDList[:count])
+	if copiedCount != count {
+		log.Fatalf("copied count does not equal %d, actually is %d", count, copiedCount)
+	}
+
+	b.UnusedIDList = append(b.UnusedIDList[:count], b.UnusedIDList[count+1:]...)
+	b.mutex.Unlock()
+	return idList
 }
